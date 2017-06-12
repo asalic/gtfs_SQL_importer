@@ -43,11 +43,11 @@ create table gtfs_location_types (
   description text
 );
 
-insert into gtfs_location_types(location_type, description) 
+insert into gtfs_location_types(location_type, description)
        values (0,'stop');
-insert into gtfs_location_types(location_type, description) 
+insert into gtfs_location_types(location_type, description)
        values (1,'station');
-insert into gtfs_location_types(location_type, description) 
+insert into gtfs_location_types(location_type, description)
        values (2,'station entrance');
 
 --related to gtf_stops(wheelchair_boarding)
@@ -203,7 +203,7 @@ create table gtfs_fare_rules (
   route_id    text , --REFERENCES gtfs_routes(route_id),
   origin_id   text ,
   destination_id text ,
-  contains_id text 
+  contains_id text
   -- unofficial features
   ,
   service_id text -- REFERENCES gtfs_calendar(service_id) ?
@@ -224,10 +224,13 @@ create table gtfs_trips (
   trip_headsign text,
   direction_id  int , --REFERENCES gtfs_directions(direction_id),
   block_id text,
-  shape_id text,  
+  shape_id text,
   trip_short_name text,
+  wheelchair_accessible int,
+  bikes_allowed int,
   -- unofficial features
-  trip_type text
+  trip_type text,
+  trip_time int
 );
 
 create table gtfs_stop_times (
@@ -247,7 +250,7 @@ create table gtfs_stop_times (
 
   -- the following are not in the spec
   ,
-  arrival_time_seconds int, 
+  arrival_time_seconds int,
   departure_time_seconds int
 
 );
@@ -276,13 +279,13 @@ create table gtfs_transfer_types (
   description text
 );
 
-insert into gtfs_transfer_types (transfer_type, description) 
+insert into gtfs_transfer_types (transfer_type, description)
        values (0,'Preferred transfer point');
-insert into gtfs_transfer_types (transfer_type, description) 
+insert into gtfs_transfer_types (transfer_type, description)
        values (1,'Designated transfer point');
-insert into gtfs_transfer_types (transfer_type, description) 
+insert into gtfs_transfer_types (transfer_type, description)
        values (2,'Transfer possible with min_transfer_time window');
-insert into gtfs_transfer_types (transfer_type, description) 
+insert into gtfs_transfer_types (transfer_type, description)
        values (3,'Transfers forbidden');
 
 

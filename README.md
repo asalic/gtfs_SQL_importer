@@ -15,15 +15,11 @@ This is how to import GTFS data into SQL:
 ## Initial Import
 
 ### PostgreSQL (COPY support)
-    cat gtfs_tables.sql \
-      <(python import_gtfs_to_sql.py path/to/gtfs/data/directory) \
-      gtfs_tables_makeindexes.sql \
-      vacuumer.sql \
-    | psql mydbname
+    cat gtfs_tables.sql <(python3 import_gtfs_to_sql.py path/to/gtfs/data/directory) gtfs_tables_makeindexes.sql  vacuumer.sql gtfs_create_materialized_views.sql | psql mydbname
 
 ### PostGIS (spatially enable your tables)
     cat gtfs_tables.sql \
-      <(python import_gtfs_to_sql.py path/to/gtfs/data/directory) \
+      <(python3 import_gtfs_to_sql.py path/to/gtfs/data/directory) \
       gtfs_tables_makespatial.sql \
       gtfs_tables_makeindexes.sql \
       vacuumer.sql \
@@ -35,7 +31,7 @@ Also, I believe the vacuumer.sql file is also postgres specific, so omit it if
 it gives errors.
 
     cat gtfs_tables.sql \
-      <(python import_gtfs_to_sql.py path/to/gtfs/data/directory nocopy) \
+      <(python3 import_gtfs_to_sql.py path/to/gtfs/data/directory nocopy) \
       gtfs_tables_makeindexes.sql \
       vacuumer.sql \
     | psql mydbname
@@ -65,7 +61,7 @@ From this directory (assuming postgres):
 
     createdb testgtfs
     cat gtfs_tables.sql \
-      <(python import_gtfs_to_sql.py sample_feed) \
+      <(python3 import_gtfs_to_sql.py sample_feed) \
       gtfs_tables_makeindexes.sql \
       vacuumer.sql \
     | psql testgtfs
@@ -86,7 +82,7 @@ Note:
   gtfs_tables.sqlite includes the constraints on creation. 
 
     cat gtfs_tables.sqlite \
-      <(python import_gtfs_to_sql.py sample_feed nocopy)  \
+      <(python3 import_gtfs_to_sql.py sample_feed nocopy)  \
     | sqlite3 ANewDatabase.db
 
 SQLite doesn't enforce constraints by default. See first section of 

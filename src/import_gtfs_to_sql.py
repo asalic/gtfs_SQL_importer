@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2010 Colin Bick, Robert Damphousse
 
@@ -22,6 +22,8 @@
 
 import csv
 import sys
+import re
+import string
 
 class SpecialHandler(object):
   """
@@ -135,43 +137,46 @@ class FrequenciesHandler(SpecialHandler):
 def import_file(fname, tablename, handler, COPY=True):
   """Returns SQL statement iterator"""
   try:
-    f = open(fname,'r');
-  except:
-    yield "-- file %s doesn't exist" % fname
+    f = open(fname,'r',encoding='utf-8-sig')
+  except Exception as e:
+    yield "-- " + str(e)
     return
 
   if not handler:
     handler = SpecialHandler()
 
   reader = csv.reader(f,dialect=csv.excel);
-  header = handler.handleCols([c.strip() for c in reader.next()]);
+  hTemp = handler.handleCols([c.strip() for c in next(reader)]);
+  header = []
+  """remove non-ASCII chars from the column names"""
+  for c in hTemp:
+    enc = ''.join(filter(lambda x: x in string.printable, c))
+    enc = enc.encode('ascii', 'ignore').decode("ascii");
+    enc = ''.join(filter(lambda x: x in string.printable, enc))
+    header.append(enc)
   cols = ",".join(header);
 
   defaultVal = 'NULL';
 
-  if not COPY:  
+  if not COPY:
     delim = ","
     insertSQL = "INSERT INTO " + tablename + " (" + cols + ") VALUES (%s);"
     func = lambda v: ((v and ("'"+v.replace("'","''")+"'")) or defaultVal)
   else:
-    delim = "|"
+    delim = ","
     copySQL = "COPY " + tablename + " (" + cols + ") FROM STDIN WITH NULL AS 'NULL' DELIMITER AS '" + delim + "';";
     yield copySQL;
     insertSQL = "%s"
     func = lambda v: str.strip(v) or defaultVal
 
   for row in reader:
+    for i in range(len(row)):
+      row[i] = row[i].replace(",", "&#44;")
     vals = handler.handleVals(row,header);
     yield insertSQL % delim.join(map(func,vals))
 
   if COPY:
     yield "\\.\n"
-  
-
-    
-
-
-
 
 
 
@@ -199,8 +204,8 @@ if __name__ == "__main__":
   handlers['frequencies'] = FrequenciesHandler();
 
   if len(sys.argv) not in (2,3):
-    print "Usage: %s gtfs_data_dir [nocopy]" % sys.argv[0]
-    print "  If nocopy is present, then uses INSERT instead of COPY."
+    print("Usage: %s gtfs_data_dir [nocopy]".format(sys.argv[0]))
+    print("  If nocopy is present, then uses INSERT instead of COPY.")
     sys.exit()
 
   dirname = sys.argv[1]
@@ -209,11 +214,11 @@ if __name__ == "__main__":
 
   useCopy = not ("nocopy" in sys.argv[2:])
 
-  print "begin;"
+  print("begin;")
 
   for fname in fnames:
     for statement in import_file(dirname+"/"+fname+".txt","gtfs_"+fname,
                                  handlers[fname],useCopy):
-      print statement;
+      print(statement);
 
-  print "commit;"
+  print("commit;")
