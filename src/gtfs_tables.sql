@@ -90,7 +90,9 @@ create table gtfs_stops (
   -- Unofficial fields
   ,
   direction text,
-  position text
+  position text,
+  platform_code text,
+  vehicle_type text
 );
 
 -- select AddGeometryColumn( 'gtfs_stops', 'location', #{WGS84_LATLONG_EPSG}, 'POINT', 2 );
@@ -195,7 +197,8 @@ create table gtfs_fare_attributes (
   transfer_duration int
   -- unofficial features
   ,
-  agency_id text  --REFERENCES gtfs_agency(agency_id)
+  agency_id text,  --REFERENCES gtfs_agency(agency_id)
+  ticket_code text
 );
 
 create table gtfs_fare_rules (
